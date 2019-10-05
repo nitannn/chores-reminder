@@ -1,0 +1,43 @@
+service: chores-reminder
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+  region: ap-southeast-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - SES:SendEmail
+        - SES:SendRawEmail
+        - SES:SendTemplatedEmail
+      Resource: !Join ['', ['arn:aws:ses:us-east-1:', !Ref 'AWS::AccountId', ':identity/*']]
+
+plugins:
+  - serverless-plugin-include-dependencies
+
+package:
+  individually: true
+
+functions:
+  chores-reminder:
+    handler: chores-reminder.handler
+    environment:
+      title: 'Pepper Chores'
+      assignees: Gerard,Melvin,Nicole
+      emailSender: 'ntan804@gmail.com'
+      emailRecipients: 'ntan804@gmail.com,melvin.sy@outlook.com,gelim922@gmail.com' #,melvin.sy@outlook.com'
+      choresCount: '4'
+      chores1Name: Cleaner of the Week
+      chores1Steps: Everyday at 11 PM - Clear Dish Drying Rack, Throw trash
+      chores2Name: Clean Kitchen Tops
+      chores2Steps: Clean Dish Drying Rack, Clean Sink with Dishwashing Soap & BKF (Optional), Clean counter tops with Dettol, Clean round table, Wash rags
+      chores3Name: Clean Kitchen and Laundry Floor
+      chores3Steps: Clean Kitchen floor by water & soap if needed, Wipe Washing Machine Top, Sweep Laundry Area Floor
+      chores4Name: Clean Living Room
+      chores4Steps: Dust Furniture (Or clean with Dettol), Vacuum Floor
+      refDate: '2019-10-05'
+    events:
+      - schedule:
+          name: chores-reminder
+          description: 'Run every 5th Weekday (closest) of the month at 9:05 SGT. '
+          rate: cron(0 3 ? * SAT *)
